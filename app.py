@@ -44,9 +44,11 @@ def init_db():
 
 init_db()
 
+
 @app.route('/')
 def index():
     return render_template('index.html')
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -90,6 +92,7 @@ def register():
         return redirect(url_for('login'))
 
     return render_template('register.html')
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -189,6 +192,7 @@ def edit_profile(iid):
                 'error.html',
                 message='用戶不存在'
             )
+
 
 @app.route('/welcome/<int:iid>')
 def welcome(iid):
