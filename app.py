@@ -126,3 +126,67 @@ def login():
 
     return render_template('login.html')
 
+
+@app.route('/edit_profile/<int:iid>', methods=['GET', 'POST'])
+def edit_profile(iid):
+    conn = sqlite3.connect('membership.db')
+    cursor = conn.cursor()
+    if request.method == 'POST':
+        username = request.form['username'].strip()
+        email = request.form['email'].strip()
+        password = request.form['password'].strip()
+        phone = request.form['phone'].strip()
+        birthdate = request.form['birthdate'].strip()
+
+        if not username or not email or not password:
+            conn.close()
+            return render_template(
+                'error.html',
+                message='請輸入用戶名、電子郵件和密碼'
+            )
+
+        cursor.execute(
+            'SELECT * FROM members WHERE username = ? AND iid != ?',
+            (username, iid)
+        )
+        if cursor.fetchone():
+            conn.close()
+            return render_template(
+                'error.html',
+                message='用戶名已被使用'
+            )
+
+        cursor.execute(
+            'SELECT * FROM members WHERE email = ? AND iid != ?',
+            (email, iid)
+        )
+        if cursor.fetchone():
+            conn.close()
+            return render_template(
+                'error.html',
+                message='電子郵件已被使用'
+            )
+
+        cursor.execute(
+            '''
+            UPDATE members
+            SET username = ?, email = ?, password = ?, phone = ?, birthdate = ?
+            WHERE iid = ?
+            ''',
+            (username, email, password, phone, birthdate, iid)
+        )
+        conn.commit()
+        conn.close()
+        return redirect(url_for('welcome', iid=iid))
+    else:
+        cursor.execute('SELECT * FROM members WHERE iid = ?', (iid,))
+        user = cursor.fetchone()
+        conn.close()
+        if user:
+            return render_template('edit_profile.html', user=user)
+        else:
+            return render_template(
+                'error.html',
+                message='用戶不存在'
+            )
+
