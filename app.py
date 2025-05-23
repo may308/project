@@ -90,3 +90,39 @@ def register():
         return redirect(url_for('login'))
 
     return render_template('register.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email'].strip()
+        password = request.form['password'].strip()
+
+        if not email or not password:
+            return render_template(
+                'error.html',
+                message='請輸入電子郵件和密碼'
+            )
+
+        conn = sqlite3.connect('membership.db')
+        cursor = conn.cursor()
+        cursor.execute(
+            'SELECT * FROM members WHERE email = ? AND password = ?',
+            (email, password)
+        )
+        user = cursor.fetchone()
+        conn.close()
+
+        if user:
+            return render_template(
+                'welcome.html',
+                username=user[1],
+                iid=user[0]
+            )
+        else:
+            return render_template(
+                'error.html',
+                message='電子郵件或密碼錯誤'
+            )
+
+    return render_template('login.html')
+
