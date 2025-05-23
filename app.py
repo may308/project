@@ -190,3 +190,24 @@ def edit_profile(iid):
                 message='用戶不存在'
             )
 
+@app.route('/welcome/<int:iid>')
+def welcome(iid):
+    conn = sqlite3.connect('membership.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT username FROM members WHERE iid = ?', (iid,))
+    user = cursor.fetchone()
+    conn.close()
+
+    if user:
+        return render_template(
+            'welcome.html',
+            username=user[0],
+            iid=iid
+        )
+    else:
+        return render_template(
+            'error.html',
+            message='用戶不存在'
+        )
+
+
