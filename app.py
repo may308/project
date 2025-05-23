@@ -211,3 +211,11 @@ def welcome(iid):
         )
 
 
+@app.route('/delete/<int:iid>')
+def delete(iid):
+    conn = sqlite3.connect('membership.db')
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM members WHERE iid = ?', (iid,))
+    conn.commit()
+    conn.close()
+    return redirect(url_for('index'))
